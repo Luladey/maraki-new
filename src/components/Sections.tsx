@@ -181,14 +181,17 @@ export function Closing() {
       <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-24 sm:px-8 md:pt-32">
         <div className="grid items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-16">
           <div className="reveal">
-            <img
-              src={img('agency-laptop.webp')}
-              alt="A client website designed by Maraki Solutions, shown on a laptop"
-              width={822}
-              height={822}
-              loading="lazy"
-              className="agency-shot w-full"
-            />
+            <div className="agency-shot relative">
+              <span aria-hidden="true" className="agency-glow" />
+              <img
+                src={img('agency-laptop.webp')}
+                alt="A client website designed by Maraki Solutions, shown on a laptop"
+                width={725}
+                height={613}
+                loading="lazy"
+                className="relative w-full"
+              />
+            </div>
           </div>
           <div className="reveal">
             <h2 className="section-title">Ready to be found, chosen <em>and booked?</em></h2>

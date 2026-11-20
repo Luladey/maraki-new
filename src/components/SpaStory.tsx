@@ -80,7 +80,9 @@ export default function SpaStory() {
         // phones: size the rig to the laptop and let the rest overflow
         // text sits on top; the devices fill the space underneath. The phone
         // grows upward by up to 140 design px when it takes centre stage.
-        const top = h * 0.43;
+        // start the devices below the tallest block of copy, so text and devices never collide
+        const tallest = Math.max(...Array.from(stage.querySelectorAll<HTMLElement>('.panel')).map((el) => el.offsetHeight));
+        const top = Math.max(h * 0.43, 76 + tallest + 18);
         kk = Math.min(w / 700, (h - top - 12) / 700);
         rx = w / 2 - 340 * kk;
         ry = top + 140 * kk + Math.max(0, (h - top - 700 * kk) / 2);
@@ -400,7 +402,7 @@ export default function SpaStory() {
         <div className="panel" ref={k([[-1, -0.9, { o: [0, 1] }], [0.62, 0.72, { o: [1, 0], y: [0, -20] }]])}>
           <p className="eyebrow">Websites · Local SEO · AI receptionists</p>
           <h1 className="headline">Digital experiences that <em>grow</em> your business.</h1>
-          <p className="lede">Follow one spa from a blank screen to a booked appointment. Scroll to watch it happen.</p>
+          <p className="lede">See how we transform a local spa’s digital presence — from a stunning website and local SEO to an AI receptionist that turns inquiries into booked appointments. Scroll to see the transformation.</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
             <a href="#work" className="btn-ghost max-sm:hidden">See our work</a>

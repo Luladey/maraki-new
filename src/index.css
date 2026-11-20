@@ -187,7 +187,7 @@ em { font-style: italic; }
 .design-cursor-inner { display: flex; align-items: flex-start; gap: 2px; animation: hover-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.5)); }
 .design-cursor-inner span { margin-top: 20px; border-radius: 6px 6px 6px 2px; background: #f28c28; color: #1a1006; padding: 4px 9px; font-size: 12px; font-weight: 600; }
 @keyframes hover-bob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(4px, -6px); } }
-.stage[data-layout='stack'] .design-cursor { left: auto; right: 18px; top: 50%; scale: 0.85; }
+.stage[data-layout='stack'] .design-cursor { left: auto; right: 18px; top: 60%; scale: 0.85; }
 
 @layer components {
   .btn-primary, .btn-ghost {
@@ -236,9 +236,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 @media (min-width: 768px) { .step-dot { left: 50%; top: 0; translate: -50% 0; } }
 
 .closing { background: #120d09; }
-.agency-shot {
-  border-radius: 28px; overflow: hidden; box-shadow: 0 40px 90px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
-  animation: float 7s ease-in-out infinite;
+.agency-shot { animation: float 7s ease-in-out infinite; }
+.agency-shot img { filter: drop-shadow(0 30px 40px rgb(0 0 0 / 0.55)); }
+.agency-glow {
+  position: absolute; left: 8%; right: 8%; bottom: -4%; height: 38%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(242 140 40 / 0.45), transparent);
+  filter: blur(18px);
 }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) { .agency-shot { animation: none; } }
@@ -248,3 +251,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 .carousel::-webkit-scrollbar { display: none; }
 .dot { width: 8px; height: 8px; border-radius: 999px; background: #d8c8b4; transition: width .3s, background-color .3s; }
 .dot[aria-current='true'] { width: 24px; background: #e07a12; }
+
+@media (max-height: 740px) and (max-width: 899px) {
+  .stage[data-layout='stack'] .lede { font-size: 14px; line-height: 1.55; margin-top: 10px; }
+  .stage[data-layout='stack'] .eyebrow { margin-bottom: 10px; }
+}
