@@ -98,7 +98,7 @@ export function Work() {
           onScroll={onScroll}
           role="region"
           aria-label="Client projects"
-          className="carousel -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0"
+          className="carousel -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:grid-cols-4 lg:gap-5 sm:overflow-visible sm:px-0 sm:pb-0"
         >
           {PROJECTS.map((p, i) => (
             <a
@@ -111,7 +111,7 @@ export function Work() {
               style={{ transitionDelay: `${(i % 2) * 90}ms` }}
             >
               <div className="overflow-hidden bg-[#efe8de]">
-                <img src={img(p.image)} alt={`${p.name} website on laptop and phone`} loading="lazy" className="aspect-[1080/700] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                <img src={img(p.image)} alt={`${p.name} website on laptop and phone`} loading="lazy" className="aspect-square w-full object-contain transition-transform duration-700 group-hover:scale-[1.04]" />
               </div>
               <div className="flex items-start justify-between gap-4 p-5 sm:p-6">
                 <div>

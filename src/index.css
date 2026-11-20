@@ -126,11 +126,7 @@ em { font-style: italic; }
 /* copy panels */
 .panel { position: absolute; z-index: 4; left: 16px; right: 16px; bottom: max(4svh, 20px); will-change: opacity, transform; }
 @media all {
-  .stage[data-layout='stack'] .panel { top: 76px; bottom: auto; }
-  .stage[data-layout='stack'] .panel::before {
-    content: ''; position: absolute; inset: -76px -16px -24px; z-index: -1;
-    background: linear-gradient(rgb(18 13 9 / 0.94) 75%, transparent);
-  }
+  .stage[data-layout='stack'] .panel { top: auto; bottom: var(--panel-bottom, 50%); }
 }
 .stage[data-layout='side'] .panel { left: max(40px, 5vw); right: auto; bottom: auto; top: 50%; width: min(470px, 36vw); translate: 0 -46%; }
 .eyebrow, .eyebrow-dark {

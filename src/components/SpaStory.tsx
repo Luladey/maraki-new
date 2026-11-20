@@ -76,15 +76,19 @@ export default function SpaStory() {
         rx = areaL + (areaW - 820 * kk) / 2;
         ry = (h - 560 * kk) / 2 + h * 0.03;
       } else {
-        // phones: size the rig to the laptop and let the rest overflow
-        // text sits on top; the devices fill the space underneath. The phone
-        // grows upward by up to 140 design px when it takes centre stage.
-        // start the devices below the tallest block of copy, so text and devices never collide
+        // Phones: text above, devices below, the pair centred on screen.
+        // In rig units the devices span y -30..610 (laptop 70..498, and the
+        // phone -30..610 when it takes centre stage). Each step's text sits
+        // just above that, so a short heading never leaves a gap.
+        const NAV = 76;
         const tallest = Math.max(...Array.from(stage.querySelectorAll<HTMLElement>('.panel')).map((el) => el.offsetHeight));
-        const top = Math.max(h * 0.43, 76 + tallest + 18);
-        kk = Math.min(w / 700, (h - top - 12) / 700);
+        const avail = h - NAV;
+        kk = Math.min(w / 700, (avail - tallest - 24) / 640, (h * 0.62) / 640);
+        const margin = Math.max(14, (avail - (tallest + 24 + 640 * kk)) / 2);
         rx = w / 2 - 340 * kk;
-        ry = top + 140 * kk + Math.max(0, (h - top - 700 * kk) / 2);
+        ry = h - margin - 610 * kk;
+        const devicesTop = ry - 30 * kk;
+        stage.style.setProperty('--panel-bottom', `${h - devicesTop + 20}px`);
       }
       stage.style.setProperty('--k', String(kk));
       stage.style.setProperty('--rx', `${rx}px`);
@@ -120,6 +124,7 @@ export default function SpaStory() {
     raf = requestAnimationFrame(frame);
     const ro = new ResizeObserver(layout);
     ro.observe(stage);
+    document.fonts?.ready.then(layout); // text height changes once web fonts load
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
@@ -138,8 +143,8 @@ export default function SpaStory() {
     const enter = span(P, 2.35, 2.8);
     const focus = span(P, 3.1, 3.45) - span(P, 6.55, 6.85);
     const dx = (1 - enter) * 260 + (mobile ? -150 * enter - 218 * focus : -380 * focus);
-    const dy = focus * (mobile ? -140 : -6);
-    const s = 1 + focus * (mobile ? 0.75 : 0.32);
+    const dy = focus * (mobile ? -60 : -6);
+    const s = 1 + focus * (mobile ? 0.6 : 0.32);
     el.style.opacity = enter.toFixed(3);
     el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
   });
