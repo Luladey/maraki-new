@@ -4,22 +4,21 @@ import { Timeline, clamp, show, span, warp, type Ctx } from '@/lib/scroll';
 import { BOOK_HREF, LOGO_SRC, img } from '@/lib/site';
 
 /** Scroll length of the story, in screens. */
-const SCREENS = 4.2;
+const SCREENS = 6;
 /**
- * Scroll position (in screens) → story time (keyframe units). Holds are short
- * and the old mobile step is folded into a quick glide, so the whole story
- * takes about four screens of scrolling.
+ * Scroll position (in screens) → story time (keyframe units). Every step gets
+ * about a screen of scrolling, with short holds so each scene can be read.
  */
 const toStory = warp([
   [0, 0],
-  [0.22, 0.5], // opening: brief hold
-  [0.45, 1.0], // screen wakes straight into the grid
-  [1.25, 2.25], // the design builds itself
-  [1.5, 3.1], // phone glides in
-  [2.3, 4.3], // local search
-  [3.1, 5.5], // booking
-  [3.9, 6.6], // AI receptionist
-  [4.2, 7.0], // finale
+  [0.3, 0.5], // opening: brief hold
+  [0.65, 1.0], // screen wakes straight into the grid
+  [1.85, 2.25], // the design builds itself
+  [2.2, 3.1], // phone glides in
+  [3.3, 4.3], // local search
+  [4.4, 5.5], // booking
+  [5.5, 6.6], // AI receptionist
+  [6.0, 7.0], // finale
 ]);
 
 const CHAPTERS = [
@@ -103,7 +102,7 @@ export default function SpaStory() {
       // frame-rate independent easing toward the scroll position (same feel at 60 or 120 Hz)
       const dt = Math.min(64, now - last) / 1000;
       last = now;
-      pos = reduce ? target : pos + (target - pos) * (1 - Math.exp(-dt * 7.5));
+      pos = reduce ? target : pos + (target - pos) * (1 - Math.exp(-dt * 9));
       if (Math.abs(target - pos) < 0.0003) pos = target;
       ctx.raw = pos / SCREENS;
       ctx.P = toStory(pos);
