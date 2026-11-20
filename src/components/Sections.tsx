@@ -1,14 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react';
-import { BOOK_HREF, BUSINESS_TYPES, CLIENTS, EMAIL, LOGO_SRC, STEPS } from '@/lib/site';
+import { ArrowRight, ArrowUpRight, Mail, MapPin, MonitorSmartphone, PhoneCall, Search, Lightbulb, Layers, TrendingUp } from 'lucide-react';
+import { BOOK_HREF, EMAIL, LOGO_SRC, PROJECTS, SERVICES, STEPS, img } from '@/lib/site';
 
-/** Fades children in as they enter the viewport. */
+/** Fades `.reveal` children in as they enter the viewport. */
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const items = root.querySelectorAll<HTMLElement>('.reveal');
     const io = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -17,93 +16,116 @@ function useReveal<T extends HTMLElement>() {
             io.unobserve(e.target);
           }
         }),
-      { rootMargin: '0px 0px -12% 0px' },
+      { rootMargin: '0px 0px -10% 0px' },
     );
-    items.forEach((el) => io.observe(el));
+    root.querySelectorAll('.reveal').forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
   return ref;
 }
 
-export function Process() {
+const SERVICE_ICONS = [MonitorSmartphone, MapPin, PhoneCall];
+const STEP_ICONS = [Search, Lightbulb, Layers, TrendingUp];
+
+export function Services() {
   const ref = useReveal<HTMLElement>();
   return (
-    <section ref={ref} id="process" className="relative bg-ink-2 px-4 py-24 sm:px-8 md:py-32">
+    <section ref={ref} id="services" className="cream relative px-4 py-24 sm:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <div className="reveal mb-14 grid gap-6 md:grid-cols-[1fr_0.8fr] md:items-end">
-          <div>
-            <p className="eyebrow">How it works</p>
-            <h2 className="section-title">
-              From first call
-              <br />
-              <span className="italic text-cyan">to launch.</span>
-            </h2>
-          </div>
-          <p className="max-w-md text-[15px] leading-7 text-mute md:justify-self-end">
-            The process is comfortable and straightforward. You stay in the loop, and we take care of the details.
-          </p>
+        <div className="reveal mb-12 text-center">
+          <p className="eyebrow-dark">Our services</p>
+          <h2 className="section-title mx-auto max-w-3xl">Everything you need to get found, chosen and <em>booked.</em></h2>
         </div>
-
-        <ol className="relative grid gap-10 md:grid-cols-4 md:gap-8">
-          <span aria-hidden="true" className="steps-line" />
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="reveal relative pl-14 md:pl-0 md:pt-16" style={{ transitionDelay: `${i * 90}ms` }}>
-              <span className="step-dot">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="mb-3 font-serif text-2xl tracking-[-0.02em] text-white">{step.title}</h3>
-              <p className="text-[14px] leading-6 text-mute">{step.description}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="grid gap-5 md:grid-cols-3">
+          {SERVICES.map((s, i) => {
+            const Icon = SERVICE_ICONS[i];
+            return (
+              <article key={s.title} className="reveal card p-7" style={{ transitionDelay: `${i * 90}ms` }}>
+                <span className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-[#f6e3cc] text-[#9a4f0a]">
+                  <Icon aria-hidden="true" className="h-5 w-5" />
+                </span>
+                <h3 className="font-serif text-[26px] leading-tight">{s.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-[#5c4d3f]">{s.body}</p>
+                <ul className="mt-5 grid gap-2 text-[14px] text-[#3c3128]">
+                  {s.points.map((p) => (
+                    <li key={p} className="flex items-center gap-2.5">
+                      <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 bg-[#e07a12]" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
 }
 
-export function Clients() {
+export function Work() {
   const ref = useReveal<HTMLElement>();
   return (
-    <section ref={ref} id="clients" className="relative overflow-hidden bg-ink px-4 py-24 sm:px-8 md:py-32">
+    <section ref={ref} id="work" className="cream-2 relative px-4 py-24 sm:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <div className="reveal">
-          <p className="eyebrow">Real client sites</p>
-          <h2 className="section-title max-w-2xl">
-            Local businesses,
-            <br />
-            <span className="italic text-cyan">booked solid.</span>
-          </h2>
+        <div className="reveal mb-10">
+          <p className="eyebrow-dark">Our work</p>
+          <h2 className="section-title">Real local businesses, <em>live online.</em></h2>
         </div>
-
-        <ul className="mt-12 border-t border-white/10">
-          {CLIENTS.map((c, i) => (
-            <li key={c.url} className="reveal" style={{ transitionDelay: `${i * 50}ms` }}>
-              <a
-                href={`https://${c.url}`}
-                target="_blank"
-                rel="noreferrer"
-                className="client-row group flex items-center justify-between gap-4 border-b border-white/10 py-5 sm:py-6"
-              >
-                <span className="font-serif text-[clamp(1.4rem,4vw,2.4rem)] leading-tight tracking-[-0.02em] text-white transition-colors group-hover:text-cyan">
-                  {c.name}
+        <div className="grid gap-6 sm:grid-cols-2">
+          {PROJECTS.map((p, i) => (
+            <a
+              key={p.url}
+              href={`https://${p.url}`}
+              target="_blank"
+              rel="noreferrer"
+              className="reveal card project group block overflow-hidden"
+              style={{ transitionDelay: `${(i % 2) * 90}ms` }}
+            >
+              <div className="overflow-hidden bg-[#efe8de]">
+                <img src={img(p.image)} alt={`${p.name} website on laptop and phone`} loading="lazy" className="aspect-[1080/700] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+              </div>
+              <div className="flex items-start justify-between gap-4 p-5 sm:p-6">
+                <div>
+                  <h3 className="font-serif text-[22px] leading-tight">{p.name}</h3>
+                  <p className="mt-1 text-[14px] text-[#5c4d3f]">{p.kind}</p>
+                  <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a5a2b]">{p.tags.join(' · ')}</p>
+                </div>
+                <span className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#e4dccf] text-[#9a4f0a] transition-colors group-hover:border-[#e07a12] group-hover:bg-[#e07a12] group-hover:text-white">
+                  <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  <span className="sr-only">Visit {p.url} (opens in a new tab)</span>
                 </span>
-                <span className="flex shrink-0 items-center gap-2 text-[13px] text-mute">
-                  <span className="hidden sm:inline">{c.url}</span>
-                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-cyan" />
-                </span>
-              </a>
-            </li>
+              </div>
+            </a>
           ))}
-        </ul>
-
-        <div className="reveal mt-14">
-          <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-mute">Built for local businesses like</p>
-          <ul className="flex flex-wrap gap-2" aria-label="Types of local businesses we serve">
-            {BUSINESS_TYPES.map((b) => (
-              <li key={b} className="rounded-full border border-cyan/60 bg-white/[0.02] px-4 py-2 text-[13px] text-white/85">
-                {b}
-              </li>
-            ))}
-          </ul>
         </div>
+      </div>
+    </section>
+  );
+}
+
+export function Process() {
+  const ref = useReveal<HTMLElement>();
+  return (
+    <section ref={ref} id="process" className="cream relative overflow-hidden px-4 py-24 sm:px-8 md:py-28">
+      <div className="mx-auto max-w-6xl">
+        <div className="reveal mb-14">
+          <p className="eyebrow-dark">Our process</p>
+          <h2 className="section-title">A simple, <em>proven</em> process.</h2>
+        </div>
+        <ol className="relative grid gap-10 md:grid-cols-4 md:gap-6">
+          <span aria-hidden="true" className="steps-line" />
+          {STEPS.map((s, i) => {
+            const Icon = STEP_ICONS[i];
+            return (
+              <li key={s.title} className="reveal relative pl-16 md:pl-0 md:pt-20 md:text-center" style={{ transitionDelay: `${i * 90}ms` }}>
+                <span className="step-dot"><Icon aria-hidden="true" className="h-5 w-5" /></span>
+                <h3 className="font-serif text-[22px]">{i + 1}. {s.title}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-[#5c4d3f]">{s.body}</p>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
@@ -113,31 +135,25 @@ export function Closing() {
   const ref = useReveal<HTMLElement>();
   const year = new Date().getFullYear();
   return (
-    <section ref={ref} id="contact" className="closing relative overflow-hidden px-4 pt-28 sm:px-8 md:pt-36">
-      <div className="reveal relative mx-auto max-w-3xl text-center">
-        <img src={LOGO_SRC} alt="" width={84} height={70} className="mx-auto mb-8 h-16 w-auto drop-shadow-[0_0_30px_rgba(20,189,219,.35)]" />
-        <h2 className="section-title">
-          Ready to be found,
-          <br />
-          <span className="italic text-cyan">chosen and booked?</span>
-        </h2>
-        <p className="mx-auto mt-6 max-w-lg text-[16px] leading-7 text-white/70">
-          Start with a free 1:1 review of your website and online presence. No obligation — just a clear plan.
-        </p>
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a href={BOOK_HREF} className="btn-primary">
-            Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" />
-          </a>
-          <a href={`mailto:${EMAIL}`} className="btn-ghost">
-            <Mail aria-hidden="true" className="h-4 w-4" /> {EMAIL}
-          </a>
+    <section ref={ref} id="contact" className="closing relative overflow-hidden text-white">
+      <img src={img('mood-towels.webp')} alt="" aria-hidden="true" loading="lazy" className="closing-photo" />
+      <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-28 sm:px-8 md:pt-36">
+        <div className="reveal max-w-xl md:ml-auto">
+          <h2 className="section-title">Ready to be found, chosen <em>and booked?</em></h2>
+          <p className="mt-5 text-[16px] leading-7 text-white/75">Start with a free 1:1 review of your website and online presence. No obligation, just a clear plan.</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
+            <a href={`mailto:${EMAIL}`} className="btn-ghost"><Mail aria-hidden="true" className="h-4 w-4" /> {EMAIL}</a>
+          </div>
         </div>
+        <footer className="mt-28 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[12px] text-white/55 sm:flex-row">
+          <span className="flex items-center gap-2.5">
+            <img src={LOGO_SRC} alt="" className="h-6 w-auto" />
+            &copy; {year} Maraki Solutions
+          </span>
+          <span>Websites · Local SEO · AI receptionists</span>
+        </footer>
       </div>
-
-      <footer className="relative mx-auto mt-28 flex max-w-6xl flex-col items-center justify-between gap-3 border-t border-white/10 py-8 text-[12px] text-white/45 sm:flex-row">
-        <p>&copy; {year} Maraki Solutions. All rights reserved.</p>
-        <p>Websites · Local SEO · AI receptionists</p>
-      </footer>
     </section>
   );
 }

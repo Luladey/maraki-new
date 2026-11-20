@@ -1,18 +1,17 @@
 import Nav from '@/components/Nav';
-import ScrollStory from '@/components/ScrollStory';
-import { Clients, Closing, Process } from '@/components/Sections';
+import SpaStory from '@/components/SpaStory';
+import { Closing, Process, Services, Work } from '@/components/Sections';
 
 export default function App() {
   return (
     <>
-      <a href="#process" className="skip-link">
-        Skip the animation
-      </a>
+      <a href="#services" className="skip-link">Skip the animation</a>
       <Nav />
       <main id="top">
-        <ScrollStory />
+        <SpaStory />
+        <Services />
+        <Work />
         <Process />
-        <Clients />
         <Closing />
       </main>
     </>

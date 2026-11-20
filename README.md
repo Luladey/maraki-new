@@ -1,9 +1,10 @@
 # Maraki Scroll
 
-A scroll-driven ("scrollytelling") website for Maraki Solutions. As you scroll, a pinned particle
-animation morphs from a field of nearby searchers into a map pin (get found), a website (win the
-customer), a phone with an AI receptionist booking (book the job), and finally the Maraki logo.
-After the story come the process steps, real client sites, and a contact call to action.
+A scroll-driven ("scrollytelling") website for Maraki Solutions. A pinned scene follows one example
+business, Serenity Spa, from a blank laptop screen to a booked appointment: the website design builds
+itself layer by layer, a phone shows it mobile-first, the spa climbs to #1 in a local search, a customer
+books in three taps, and an AI receptionist answers a 9pm call and books it. Services, real client
+projects, the process and a contact call to action follow.
 
 ## Run it
 
@@ -23,8 +24,9 @@ No extra configuration is needed; Node 22 or newer is required.
 
 ## Where things live
 
-- `src/components/ScrollStory.tsx` — the pinned scroll story: scene copy, scroll mapping, particle renderer
-- `src/lib/shapes.ts` — the shapes the particles form (drawn off-screen and sampled into points)
-- `src/components/Sections.tsx` — process, clients and closing sections
-- `src/lib/site.ts` — contact email, process steps, client list
-- `public/maraki-mark.png` — the logo mark (also sampled for the final particle shape)
+- `src/components/SpaStory.tsx` — the pinned scroll story: devices, screens, copy and their timings
+- `src/lib/scroll.ts` — the small scroll-timeline engine (keyframes tied to scroll position)
+- `src/components/Sections.tsx` — services, work, process and closing sections
+- `src/lib/site.ts` — contact email, services, process steps, client projects
+- `public/img/` — spa photos, cut-outs and client screenshots (WebP)
+- `public/maraki-mark.png` — the logo mark
