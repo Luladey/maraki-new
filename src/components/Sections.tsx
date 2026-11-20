@@ -136,14 +136,25 @@ export function Closing() {
   const year = new Date().getFullYear();
   return (
     <section ref={ref} id="contact" className="closing relative overflow-hidden text-white">
-      <img src={img('mood-towels.webp')} alt="" aria-hidden="true" loading="lazy" className="closing-photo" />
-      <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-28 sm:px-8 md:pt-36">
-        <div className="reveal max-w-xl md:ml-auto">
-          <h2 className="section-title">Ready to be found, chosen <em>and booked?</em></h2>
-          <p className="mt-5 text-[16px] leading-7 text-white/75">Start with a free 1:1 review of your website and online presence. No obligation, just a clear plan.</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
-            <a href={`mailto:${EMAIL}`} className="btn-ghost"><Mail aria-hidden="true" className="h-4 w-4" /> {EMAIL}</a>
+      <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-24 sm:px-8 md:pt-32">
+        <div className="grid items-center gap-12 md:grid-cols-[1.05fr_1fr] md:gap-16">
+          <div className="reveal">
+            <img
+              src={img('agency-laptop.webp')}
+              alt="A client website designed by Maraki Solutions, shown on a laptop"
+              width={822}
+              height={822}
+              loading="lazy"
+              className="agency-shot w-full"
+            />
+          </div>
+          <div className="reveal">
+            <h2 className="section-title">Ready to be found, chosen <em>and booked?</em></h2>
+            <p className="mt-5 text-[16px] leading-7 text-white/75">Start with a free 1:1 review of your website and online presence. No obligation, just a clear plan.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
+              <a href={`mailto:${EMAIL}`} className="btn-ghost"><Mail aria-hidden="true" className="h-4 w-4" /> {EMAIL}</a>
+            </div>
           </div>
         </div>
         <footer className="mt-28 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[12px] text-white/55 sm:flex-row">

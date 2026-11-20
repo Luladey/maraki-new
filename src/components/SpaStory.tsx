@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { ArrowRight, CalendarCheck, MapPin, Phone, Search } from 'lucide-react';
 import { Timeline, clamp, show, span, type Ctx } from '@/lib/scroll';
-import { BOOK_HREF, img } from '@/lib/site';
+import { BOOK_HREF, LOGO_SRC, img } from '@/lib/site';
 
 /** Story length in scroll units (one unit ≈ one screen of scrolling). */
 const TOTAL = 7;
@@ -47,7 +47,9 @@ export default function SpaStory() {
     const layout = () => {
       const w = stage.clientWidth;
       const h = stage.clientHeight;
-      ctx.mobile = w < 900;
+      // stacked (portrait phones/tablets) vs side-by-side (desktop, landscape)
+      ctx.mobile = w < 900 && h >= w * 0.9;
+      stage.dataset.layout = ctx.mobile ? 'stack' : 'side';
       let kk: number;
       let rx: number;
       let ry: number;
@@ -59,7 +61,7 @@ export default function SpaStory() {
         ry = (h - 560 * kk) / 2 + h * 0.03;
       } else {
         // phones: size the rig to the laptop and let the rest overflow
-        kk = Math.min(w / 700, (h * 0.46) / 560);
+        kk = Math.min(w / 700, (h * (w > 600 ? 0.52 : 0.46)) / 560);
         rx = w / 2 - 340 * kk;
         ry = Math.max(60, h * 0.075);
       }
@@ -139,7 +141,7 @@ export default function SpaStory() {
 
   return (
     <section ref={storyRef} aria-label="How Maraki takes a spa from blank screen to booked" className="relative" style={{ height: `${(TOTAL + 1) * 100}vh` }}>
-      <div ref={stageRef} className="stage sticky top-0 h-[100svh] w-full overflow-hidden">
+      <div ref={stageRef} data-layout="side" className="stage sticky top-0 h-[100svh] w-full overflow-hidden">
         <div aria-hidden="true" className="stage-glow absolute inset-0" />
         <div aria-hidden="true" ref={k([[5.45, 5.65, { o: [0, 1] }], [6.5, 6.7, { o: [1, 0] }]])} className="night absolute inset-0" />
 
@@ -198,7 +200,10 @@ export default function SpaStory() {
                   <CalendarCheck className="h-3.5 w-3.5 text-[#f28c28]" /> New booking · Sat 10:00 AM
                 </div>
                 {/* screen off */}
-                <div className="layer screen-off" ref={k([[0.55, 0.9, { o: [1, 0] }]])} />
+                <div className="layer screen-off" ref={k([[0.55, 0.9, { o: [1, 0] }]])}>
+                  <img src={LOGO_SRC} alt="" />
+                  <span>Let’s build</span>
+                </div>
               </div>
             </div>
             <div className="lap-base" />
