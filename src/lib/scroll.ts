@@ -21,7 +21,8 @@ export type Props = {
 };
 export type Track = [number, number, Props, Ease?];
 type Ease = (t: number) => number;
-export type Ctx = { P: number; mobile: boolean; reduce: boolean };
+/** P: story time in keyframe units; raw: 0..1 progress through the pinned section. */
+export type Ctx = { P: number; raw: number; mobile: boolean; reduce: boolean };
 export type Fn = (el: HTMLElement, ctx: Ctx) => void;
 
 export const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -79,6 +80,21 @@ export class Timeline {
     this.fns.forEach((f, el) => f(el, ctx));
   }
 }
+
+/**
+ * Piecewise-linear time warp: maps scroll position (x) to story time (y).
+ * Lets the keyframes stay in their original units while the scroll gets
+ * shorter, and lets slow stretches (holds) be squeezed independently.
+ */
+export const warp = (knots: [number, number][]) => (x: number) => {
+  if (x <= knots[0][0]) return knots[0][1];
+  for (let i = 1; i < knots.length; i++) {
+    const [x1, y1] = knots[i];
+    const [x0, y0] = knots[i - 1];
+    if (x <= x1) return y0 + ((x - x0) / (x1 - x0)) * (y1 - y0);
+  }
+  return knots[knots.length - 1][1];
+};
 
 /** Fade in over [a, a+d], optionally fade out over [b, b+d]. */
 export const show = (a: number, b?: number, extra: Props = {}, d = 0.12): Track[] => {

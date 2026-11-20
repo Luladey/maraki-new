@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Mail, MapPin, MonitorSmartphone, PhoneCall, Search, Lightbulb, Layers, TrendingUp } from 'lucide-react';
 import { BOOK_HREF, EMAIL, LOGO_SRC, PROJECTS, SERVICES, STEPS, img } from '@/lib/site';
 
@@ -65,21 +65,49 @@ export function Services() {
 
 export function Work() {
   const ref = useReveal<HTMLElement>();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  // On phones the grid becomes a swipeable carousel; track which card is centred.
+  const onScroll = () => {
+    const t = trackRef.current;
+    if (!t) return;
+    const cards = [...t.children] as HTMLElement[];
+    const mid = t.scrollLeft + t.clientWidth / 2;
+    let best = 0;
+    cards.forEach((c, i) => {
+      if (Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid) < Math.abs(cards[best].offsetLeft + cards[best].offsetWidth / 2 - mid)) best = i;
+    });
+    setActive(best);
+  };
+  const go = (i: number) => {
+    const t = trackRef.current;
+    const c = t?.children[i] as HTMLElement | undefined;
+    if (t && c) t.scrollTo({ left: c.offsetLeft - (t.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' });
+  };
+
   return (
-    <section ref={ref} id="work" className="cream-2 relative px-4 py-24 sm:px-8 md:py-28">
+    <section ref={ref} id="work" className="cream-2 relative overflow-hidden px-4 py-24 sm:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <div className="reveal mb-10">
           <p className="eyebrow-dark">Our work</p>
           <h2 className="section-title">Real local businesses, <em>live online.</em></h2>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div
+          ref={trackRef}
+          onScroll={onScroll}
+          role="region"
+          aria-label="Client projects"
+          className="carousel -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0"
+        >
           {PROJECTS.map((p, i) => (
             <a
               key={p.url}
               href={`https://${p.url}`}
               target="_blank"
               rel="noreferrer"
-              className="reveal card project group block overflow-hidden"
+              aria-label={`${p.name}, ${i + 1} of ${PROJECTS.length}`}
+              className="reveal card project group block w-[84%] shrink-0 snap-center overflow-hidden sm:w-auto"
               style={{ transitionDelay: `${(i % 2) * 90}ms` }}
             >
               <div className="overflow-hidden bg-[#efe8de]">
@@ -97,6 +125,20 @@ export function Work() {
                 </span>
               </div>
             </a>
+          ))}
+        </div>
+        <div className="mt-5 flex items-center justify-center gap-1 sm:hidden">
+          {PROJECTS.map((p, i) => (
+            <button
+              key={p.url}
+              type="button"
+              onClick={() => go(i)}
+              aria-label={`Show ${p.name}`}
+              aria-current={active === i}
+              className="grid h-11 min-w-11 place-items-center px-1"
+            >
+              <span className="dot" aria-current={active === i} />
+            </button>
           ))}
         </div>
       </div>

@@ -36,10 +36,8 @@ em { font-style: italic; }
 .night { background: rgb(3 5 12 / 0.62); opacity: 0; }
 
 .cut { position: absolute; pointer-events: none; height: auto; will-change: transform; filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.5)); }
-.cut-leaves { top: -3%; right: -3%; width: clamp(150px, 22vw, 340px); z-index: 1; }
 .cut-plumeria { bottom: 2%; left: 38%; width: clamp(90px, 9vw, 160px); z-index: 3; }
 .cut-candle { bottom: 5%; right: 3%; width: clamp(80px, 8vw, 140px); z-index: 3; }
-.stage[data-layout='stack'] .cut-leaves { width: 130px; top: 40px; right: -36px; opacity: 0.85; }
 .stage[data-layout='stack'] .cut-plumeria, .stage[data-layout='stack'] .cut-candle { display: none; }
 
 /* the device rig: 820 × 560 design pixels, scaled to fit */
@@ -129,9 +127,10 @@ em { font-style: italic; }
 /* copy panels */
 .panel { position: absolute; z-index: 4; left: 16px; right: 16px; bottom: max(4svh, 20px); will-change: opacity, transform; }
 @media all {
+  .stage[data-layout='stack'] .panel { top: 76px; bottom: auto; }
   .stage[data-layout='stack'] .panel::before {
-    content: ''; position: absolute; inset: -40px -16px -40px; z-index: -1;
-    background: linear-gradient(transparent, rgb(18 13 9 / 0.92) 30%);
+    content: ''; position: absolute; inset: -76px -16px -24px; z-index: -1;
+    background: linear-gradient(rgb(18 13 9 / 0.94) 75%, transparent);
   }
 }
 .stage[data-layout='side'] .panel { left: max(40px, 5vw); right: auto; bottom: auto; top: 50%; width: min(470px, 36vw); translate: 0 -46%; }
@@ -181,8 +180,14 @@ em { font-style: italic; }
 }
 .stage[data-layout='side'] .scroll-hint { display: flex; }
 @media (max-height: 600px) { .stage[data-layout] .scroll-hint { display: none; } }
-.scroll-line { width: 1px; height: 38px; background: linear-gradient(#f28c28, transparent); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
-@keyframes drip { 0% { transform: scaleY(0); opacity: 1; } 70% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+.mouse { position: relative; width: 24px; height: 38px; border: 2px solid rgb(255 255 255 / 0.7); border-radius: 14px; }
+.mouse-wheel { position: absolute; left: 50%; top: 7px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: #f28c28; animation: wheel 1.6s cubic-bezier(.6,0,.4,1) infinite; }
+@keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
+.design-cursor { position: absolute; z-index: 5; left: 66%; top: 18%; pointer-events: none; will-change: transform, opacity; }
+.design-cursor-inner { display: flex; align-items: flex-start; gap: 2px; animation: hover-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.5)); }
+.design-cursor-inner span { margin-top: 20px; border-radius: 6px 6px 6px 2px; background: #f28c28; color: #1a1006; padding: 4px 9px; font-size: 12px; font-weight: 600; }
+@keyframes hover-bob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(4px, -6px); } }
+.stage[data-layout='stack'] .design-cursor { left: auto; right: 18px; top: 50%; scale: 0.85; }
 
 @layer components {
   .btn-primary, .btn-ghost {
@@ -217,7 +222,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 .card.reveal.is-in:hover { transform: translateY(-4px); }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .scroll-line, .wave i, .ringing, .caret { animation: none; }
+  .mouse-wheel, .design-cursor-inner, .wave i, .ringing, .caret { animation: none; }
 }
 
 .steps-line { position: absolute; left: 23px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(#e07a12, rgb(224 122 18 / 0.15)); }
@@ -237,3 +242,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) { .agency-shot { animation: none; } }
+
+/* work carousel (phones) */
+.carousel { scrollbar-width: none; }
+.carousel::-webkit-scrollbar { display: none; }
+.dot { width: 8px; height: 8px; border-radius: 999px; background: #d8c8b4; transition: width .3s, background-color .3s; }
+.dot[aria-current='true'] { width: 24px; background: #e07a12; }
