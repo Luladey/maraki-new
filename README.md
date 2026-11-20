@@ -11,10 +11,15 @@ After the story come the process steps, real client sites, and a contact call to
 npm install
 npm run dev      # local dev server on http://localhost:5173
 npm run build    # production build into dist/
-npm run preview  # serve the production build
+npm run preview  # preview the production build
+npm start        # serve dist/ on $PORT (what Railway runs)
 ```
 
-On Replit, press **Run**; deploy as a static site (build output: `dist/`).
+## Deploy on Railway
+
+Create a Railway project from this GitHub repo. Railway installs dependencies, runs
+`npm run build`, then `npm start`, which serves `dist/` on the port Railway provides.
+No extra configuration is needed; Node 22 or newer is required.
 
 ## Where things live
 
