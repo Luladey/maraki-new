@@ -1,7 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { ArrowRight, CalendarCheck, MapPin, Phone, Search } from 'lucide-react';
 import { Timeline, clamp, show, span, warp, type Ctx } from '@/lib/scroll';
-import { ParticleText } from '@/lib/particleText';
 import { BOOK_HREF, LOGO_SRC, img } from '@/lib/site';
 
 /** Scroll length of the story, in screens. */
@@ -80,7 +79,6 @@ export default function SpaStory() {
   const stageRef = useRef<HTMLDivElement>(null);
   const camRef = useRef<HTMLDivElement>(null);
   const spotRef = useRef<HTMLDivElement>(null);
-  const ptextRef = useRef<HTMLCanvasElement>(null);
 
   useLayoutEffect(() => {
     const story = storyRef.current!;
@@ -102,27 +100,6 @@ export default function SpaStory() {
     };
     if (finePointer && !reduce) stage.addEventListener('pointermove', onPointer);
 
-    // Opening words made of particles, inside the glowing ring
-    const ptCanvas = ptextRef.current!;
-    let ptext: ParticleText | null = null;
-    const PT_SIZE = 480;
-    const sizeParticles = () => {
-      const kk = Number(stage.style.getPropertyValue('--k')) || 1;
-      ptext?.resize(kk, Math.min(window.devicePixelRatio || 1, 2));
-    };
-    const startParticles = () => {
-      if (ptext) return;
-      ptext = new ParticleText(ptCanvas, PT_SIZE, ['SCROLL TO SEE', 'HOW WE TRANSFORMED', 'A LOCAL SPA'], stage.clientWidth < 700 ? 2600 : 3200);
-      sizeParticles();
-    };
-    const onPtPointer = (e: PointerEvent) => {
-      if (!ptext || e.pointerType !== 'mouse') return;
-      const r = ptCanvas.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width) * PT_SIZE;
-      const y = ((e.clientY - r.top) / r.height) * PT_SIZE;
-      ptext.pointer = x > -80 && y > -80 && x < PT_SIZE + 80 && y < PT_SIZE + 80 ? { x, y } : null;
-    };
-    if (finePointer && !reduce) window.addEventListener('pointermove', onPtPointer, { passive: true });
     const ctx: Ctx = { P: 0, raw: 0, mobile: false, reduce };
     let pos = 0; // smoothed scroll position, in screens
     let last = performance.now();
@@ -186,7 +163,6 @@ export default function SpaStory() {
       if (rect.bottom > 0 && rect.top < window.innerHeight) {
         placeCamera(now);
         tl.apply(ctx);
-        ptext?.draw(now, span(ctx.P, 0.04, 0.42, (t) => t), reduce);
       }
       raf = requestAnimationFrame(frame);
     };
@@ -227,21 +203,11 @@ export default function SpaStory() {
     raf = requestAnimationFrame(frame);
     const ro = new ResizeObserver(layout);
     ro.observe(stage);
-    const afterFonts = () => {
-      layout(); // text height changes once web fonts load
-      startParticles(); // sample the words once Inter is ready
-      sizeParticles();
-    };
-    if (document.fonts) document.fonts.ready.then(afterFonts);
-    else afterFonts();
-    const ro2 = new ResizeObserver(sizeParticles);
-    ro2.observe(stage);
+    document.fonts?.ready.then(layout); // text height changes once web fonts load
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
       stage.removeEventListener('pointermove', onPointer);
-      window.removeEventListener('pointermove', onPtPointer);
-      ro2.disconnect();
     };
   }, [tl]);
 
@@ -301,9 +267,6 @@ export default function SpaStory() {
 
   const panel = (a: number, b?: number) => k(show(a, b, { y: [22, 0] }, 0.1));
 
-  // Opening-frame preview: ?intro=wordmark adds the big outlined MARAKI wordmark
-  const intro = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('intro') ?? '';
-  const showWordmark = intro === 'wordmark';
 
   return (
     <section ref={storyRef} aria-label="How Maraki takes a spa from blank screen to booked" className="relative" style={{ height: `${(SCREENS + 1) * 100}vh` }}>
@@ -333,15 +296,17 @@ export default function SpaStory() {
         <img aria-hidden="true" alt="" src={img('cut-candle.webp')} ref={parallax(0.15, 0, 22)} className="cut cut-candle" />
 
         {/* ---------------- device rig (820 × 560 design px) ---------------- */}
-        {showWordmark && (
-          <div aria-hidden="true" className="wordmark" ref={k([[0.08, 0.6, { o: [1, 0], s: [1, 1.18], b: [0, 6] }]])}>
-            MARAKI
-          </div>
-        )}
         <div aria-hidden="true" className="rig">
           <div className="cam" ref={camRef}>
           <div className="ring" ref={k([[3.1, 3.4, { o: [1, 0.35] }], [6.55, 6.85, { o: [0.35, 1] }]])} />
-          <canvas className="ptext" ref={ptextRef} />
+          {/* opening cue: a floating "Scroll" and an animated scroll icon, inside the ring */}
+          <div className="scroll-cue" ref={k([[0.04, 0.34, { o: [1, 0], y: [0, -34] }]])}>
+            <div className="scroll-cue-float">
+              <span className="scroll-cue-word">Scroll</span>
+              <span className="scroll-cue-mouse"><span className="scroll-cue-wheel" /></span>
+              <svg className="scroll-cue-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </div>
+          </div>
           <div className="desk" />
 
           {/* laptop: a lid that opens over a keyboard deck, in real 3D */}
@@ -609,10 +574,6 @@ export default function SpaStory() {
               <li key={c.label} data-at={c.at}>{c.label}</li>
             ))}
           </ol>
-        </div>
-        <div aria-hidden="true" className="scroll-hint" ref={k([[0.05, 0.3, { o: [1, 0] }]])}>
-          <span className="mouse"><span className="mouse-wheel" /></span>
-          <span>Scroll</span>
         </div>
       </div>
     </section>
