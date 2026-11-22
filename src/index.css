@@ -46,14 +46,16 @@ em { font-style: italic; }
 /* the device rig: 820 × 560 design pixels, scaled to fit */
 .rig {
   position: absolute; left: 0; top: 0; width: 820px; height: 560px; z-index: 2;
-  transform-origin: 0 0;
-  transform: translate(var(--rx, 0), var(--ry, 0)) scale(var(--k, 1));
+  /* zoom (not a scale transform) so the 3D devices are drawn at the screen's
+     real resolution instead of a small bitmap being stretched up */
+  zoom: var(--k, 1);
+  left: calc(var(--rx, 0px) / var(--k, 1)); top: calc(var(--ry, 0px) / var(--k, 1));
 }
 .rig { perspective: 2200px; perspective-origin: 42% 38%; }
 .rig > *, .cam > * { position: absolute; }
 .cam {
   left: 0; top: 0; width: 820px; height: 560px;
-  transform-style: preserve-3d; transform-origin: 340px 470px; will-change: transform;
+  transform-style: preserve-3d; transform-origin: 340px 470px;
 }
 .ring {
   transform: translateZ(-90px);
@@ -65,8 +67,8 @@ em { font-style: italic; }
   left: -500px; top: 470px; width: 1820px; height: 120px;
   background: radial-gradient(50% 60% at 45% 20%, rgb(80 52 30 / 0.55), transparent 70%);
 }
-.laptop { left: 20px; top: 70px; width: 640px; height: 412px; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform; }
-.lap-lid { position: absolute; inset: 0; transform-origin: 50% 100%; transform-style: preserve-3d; will-change: transform; }
+.laptop { left: 20px; top: 70px; width: 640px; height: 412px; transform-style: preserve-3d; transform-origin: 50% 100%; }
+.lap-lid { position: absolute; inset: 0; transform-origin: 50% 100%; transform-style: preserve-3d; }
 .lap-bezel {
   position: absolute; inset: 0; backface-visibility: hidden; opacity: var(--lap-o, 1);
   background: #08080b; border-radius: 20px 20px 8px 8px; padding: 13px;
@@ -94,7 +96,7 @@ em { font-style: italic; }
 .lap-keys {
   position: absolute; left: 44px; right: 44px; top: 24px; height: 160px; border-radius: 10px;
   background-color: rgb(58 62 86 / 0.62);
-  background-image: linear-gradient(90deg, rgb(22 24 36 / 0.85) 3px, transparent 3px), linear-gradient(rgb(22 24 36 / 0.85) 3px, transparent 3px);
+  background-image: linear-gradient(90deg, rgb(22 24 36 / 0.85) 2px, rgb(22 24 36 / 0.35) 3.5px, transparent 5px), linear-gradient(rgb(22 24 36 / 0.85) 2px, rgb(22 24 36 / 0.35) 3.5px, transparent 5px);
   background-size: 40px 39px; box-shadow: inset 0 0 0 3px rgb(22 24 36 / 0.85), 0 1px 0 rgb(255 255 255 / 0.25);
 }
 .lap-pad {
@@ -129,7 +131,7 @@ em { font-style: italic; }
 .phone {
   left: 610px; top: 150px; width: 196px; height: 400px; box-sizing: border-box;
   background: #050505; border-radius: 30px; padding: 6px; border: 2px solid transparent; background-clip: padding-box; outline: 1px solid transparent;
-  box-shadow: inset 0 0 3px 1px #5a4535, 0 30px 60px rgb(0 0 0 / 0.7); transform-origin: 50% 50%; will-change: transform, opacity;
+  box-shadow: inset 0 0 3px 1px #5a4535, 0 30px 60px rgb(0 0 0 / 0.7); transform-origin: 50% 50%;
 }
 .phone-screen { position: relative; width: 100%; height: 100%; border-radius: 23px; overflow: hidden; background: #2a1d14; }
 .map {
