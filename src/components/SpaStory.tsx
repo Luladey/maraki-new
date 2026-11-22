@@ -219,6 +219,7 @@ export default function SpaStory() {
     // opacity goes on the laptop's flat parts via a variable: opacity on a 3D
     // group would flatten its lid and keyboard deck into one plane
     el.style.setProperty('--lap-o', o.toFixed(3));
+    el.style.setProperty('--spill', (1 - span(P, 0.15, 0.55)).toFixed(3));
     // phones: while closed, the laptop is smaller and tucked up over the
     // bottom of the ring; it grows back into place as the lid opens
     const closed = mobile ? 1 - span(P, 0.02, 0.6) : 0;
@@ -227,7 +228,7 @@ export default function SpaStory() {
   const lidFn = f((el, { P }) => {
     // closed (lying on the keyboard) → open and tipped back a few degrees
     const t = span(P, 0.02, 0.6);
-    el.style.transform = `rotateX(${(-88 + t * 94).toFixed(2)}deg)`;
+    el.style.transform = `rotateX(${(-70 + t * 76).toFixed(2)}deg)`; // starts ~18° ajar
   });
   const phoneFn = f((el, { P, mobile }) => {
     const enter = span(P, 2.35, 2.8);
@@ -317,11 +318,14 @@ export default function SpaStory() {
             <div className="lap-deck">
               <div className="lap-keys" />
               <div className="lap-pad" />
+              <div className="lap-spill" />
+              <div className="lap-beam" />
             </div>
             <div className="lap-lid" ref={lidFn}>
             <div className="lap-back">
               <img src={LOGO_SRC} alt="" />
             </div>
+            <div className="lap-seam" />
             <div className="lap-bezel">
               <div className="lap-screen">
                 <div className="layer bg-[#1a130e]" />
