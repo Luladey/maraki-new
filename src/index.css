@@ -219,7 +219,7 @@ em { font-style: italic; }
 .design-cursor-inner { display: flex; align-items: flex-start; gap: 2px; animation: hover-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.5)); }
 .design-cursor-inner span { margin-top: 20px; border-radius: 6px 6px 6px 2px; background: #f28c28; color: #1a1006; padding: 4px 9px; font-size: 12px; font-weight: 600; }
 @keyframes hover-bob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(4px, -6px); } }
-.stage[data-layout='stack'] .design-cursor { left: auto; right: 18px; top: 60%; scale: 0.85; }
+.stage[data-layout='stack'] .design-cursor { left: auto; right: 18px; top: 80%; scale: 0.85; }
 
 @layer components {
   .btn-primary, .btn-ghost {
@@ -297,3 +297,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 
 /* project cards tilt toward the pointer (desktop) */
 .tilt { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .35s cubic-bezier(.22,1,.36,1); }
+
+/* ---- opening-frame previews ---- */
+.ptext { left: 150px; top: 6px; width: 480px; height: 480px; transform: translateZ(-80px); pointer-events: none; }
+.wordmark {
+  position: absolute; z-index: 1; right: 7vw; top: 34%; translate: 0 -50%;
+  font-family: var(--font-sans); font-weight: 700; font-size: 12.5vw; line-height: 1; letter-spacing: 0.04em;
+  color: transparent; -webkit-text-stroke: 1.5px rgb(242 140 40 / 0.4);
+  background: linear-gradient(105deg, transparent 38%, rgb(255 200 140 / 0.9) 48%, rgb(242 140 40 / 0.7) 52%, transparent 62%) 0 0 / 260% 100% no-repeat;
+  -webkit-background-clip: text; background-clip: text;
+  animation: sweep 4.5s ease-in-out infinite; pointer-events: none; will-change: transform, opacity;
+}
+@keyframes sweep { 0% { background-position: 110% 0; } 60%, 100% { background-position: -40% 0; } }
+.stage[data-layout='stack'] .wordmark { right: auto; left: 50%; translate: -50% -50%; top: calc(100% - var(--panel-bottom, 50%) + 64px); font-size: 19vw; }
+@media (prefers-reduced-motion: reduce) { .wordmark { animation: none; } }
