@@ -152,8 +152,9 @@ em { font-style: italic; }
 .wave i:nth-child(4) { animation-delay: -0.6s; } .wave i:nth-child(5) { animation-delay: -0.8s; }
 @keyframes wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
 
-.summary-pos { left: 480px; top: 160px; width: 310px; }
-.stage[data-layout='stack'] .summary-pos { left: 110px; top: 250px; transform: scale(1.5); transform-origin: 0 0; }
+.summary-pos { left: 480px; top: 160px; width: 310px; transform: translateZ(140px); }
+/* phones: the summary pops forward over the (dimmed) phone, centred and readable */
+.stage[data-layout='stack'] .summary-pos { left: 131px; top: 170px; transform: translateZ(260px) scale(1.35); transform-origin: 0 0; }
 .summary {
   box-sizing: border-box; background: #faf7f2; color: #1a1410; border-radius: 18px; padding: 20px;
   box-shadow: 0 30px 60px rgb(0 0 0 / 0.55); opacity: 0;

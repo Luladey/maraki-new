@@ -233,7 +233,9 @@ export default function SpaStory() {
     const s = 1 + focus * (mobile ? 0.52 : 0.32);
     const spin = (1 - enter) * -55 + focus * 6 - span(P, 6.55, 6.85) * 6;
     const z = 60 + (1 - enter) * 260 + focus * 40;
-    el.style.opacity = enter.toFixed(3);
+    // phones: step back while the owner's summary card pops up in front
+    const behind = mobile ? span(P, 6.15, 6.35) - span(P, 6.5, 6.64) : 0;
+    el.style.opacity = (enter * (1 - 0.6 * behind)).toFixed(3);
     el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${spin.toFixed(2)}deg) scale(${s.toFixed(4)})`;
   });
   const typing = f((el, { P }) => {
