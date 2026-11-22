@@ -189,7 +189,7 @@ export default function SpaStory() {
           rx += Math.cos(now / 3100) * 1.2;
         }
       }
-      cam.style.transform = `translate3d(0, ${(-(1 - open) * (ctx.mobile ? 0 : 110)).toFixed(1)}px, ${(push * 150).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+      cam.style.transform = `translate3d(0, 0, ${(push * 150).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
       stage.style.setProperty('--mx', mouse.x.toFixed(3));
       stage.style.setProperty('--my', mouse.y.toFixed(3));
     };
@@ -220,9 +220,9 @@ export default function SpaStory() {
     // group would flatten its lid and keyboard deck into one plane
     el.style.setProperty('--lap-o', o.toFixed(3));
     el.style.setProperty('--spill', (1 - span(P, 0.15, 0.55)).toFixed(3));
-    // phones: while closed, the laptop is smaller and tucked up over the
+    // while closed, the laptop is smaller and tucked up over the
     // bottom of the ring; it grows back into place as the lid opens
-    const closed = mobile ? 1 - span(P, 0.02, 0.6) : 0;
+    const closed = 1 - span(P, 0.02, 0.6);
     el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(-closed * 170).toFixed(1)}px, ${(-dim * 120).toFixed(1)}px) scale(${(1 - closed * 0.3).toFixed(4)})`;
   });
   const lidFn = f((el, { P }) => {

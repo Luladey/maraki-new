@@ -317,7 +317,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 @keyframes cue-wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
 @keyframes cue-bounce { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(12px); opacity: 1; } }
 
-.stage[data-layout='stack'] .scroll-cue { padding-bottom: 150px; box-sizing: border-box; }
+.scroll-cue { padding-bottom: 150px; box-sizing: border-box; }
 
 /* light spilling out of the half-open lid */
 .lap-spill {
