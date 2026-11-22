@@ -18,6 +18,7 @@ export type Props = {
   clipR?: Range; // clip from the right, % hidden (100 → 0 reveals left-to-right)
   clipT?: Range; // clip from the top, % hidden
   w?: Range; // width, %
+  b?: Range; // blur, px
 };
 export type Track = [number, number, Props, Ease?];
 type Ease = (t: number) => number;
@@ -32,7 +33,7 @@ export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /** Local 0..1 progress of P through [a, b]. */
 export const span = (P: number, a: number, b: number, ease: Ease = easeInOut) => ease(clamp((P - a) / (b - a)));
 
-const KEYS = ['o', 'x', 'y', 's', 'r', 'clipR', 'clipT', 'w'] as const;
+const KEYS = ['o', 'x', 'y', 's', 'r', 'clipR', 'clipT', 'w', 'b'] as const;
 
 type Entry = { tracks: Track[]; unit: string };
 
@@ -76,6 +77,7 @@ export class Timeline {
         el.style.clipPath = `inset(${(v.clipT ?? 0).toFixed(2)}% ${(v.clipR ?? 0).toFixed(2)}% 0 0)`;
       }
       if (v.w !== undefined) el.style.width = `${v.w.toFixed(2)}%`;
+      if (v.b !== undefined) el.style.filter = v.b < 0.05 ? '' : `blur(${v.b.toFixed(2)}px)`;
     });
     this.fns.forEach((f, el) => f(el, ctx));
   }

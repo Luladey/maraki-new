@@ -110,7 +110,7 @@ export function Work() {
               className="reveal card project group block w-[84%] shrink-0 snap-center overflow-hidden sm:w-auto"
               style={{ transitionDelay: `${(i % 2) * 90}ms` }}
             >
-              <div className="overflow-hidden bg-[#efe8de]">
+              <div className="tilt overflow-hidden bg-[#efe8de]" data-tilt>
                 <img src={img(p.image)} alt={`${p.name} website on laptop and phone`} loading="lazy" className="aspect-square w-full object-contain transition-transform duration-700 group-hover:scale-[1.04]" />
               </div>
               <div className="flex items-start justify-between gap-4 p-5 sm:p-6">

@@ -39,6 +39,34 @@ function Lotus({ className = '' }: { className?: string }) {
   );
 }
 
+type Seg = { t: string; em?: boolean };
+/**
+ * A headline that builds itself word by word (rise + un-blur), timed to the
+ * story. `at` is when the first word lands; the opening headline animates on
+ * page load instead (at < 0).
+ */
+function Words({ segs, at, k }: { segs: Seg[]; at: number; k: Timeline['keys'] }) {
+  let i = 0;
+  return (
+    <>
+      {segs.map((seg, si) => {
+        const words = seg.t.split(' ');
+        const inner = words.map((wd, wi) => {
+          const n = i++;
+          const ref = at < 0 ? undefined : k([[at + n * 0.035, at + 0.14 + n * 0.035, { o: [0, 1], y: [22, 0], b: [8, 0] }]]);
+          return (
+            <span key={wi} className={at < 0 ? 'w w-load' : 'w'} style={at < 0 ? { animationDelay: `${0.25 + n * 0.07}s` } : undefined} ref={ref}>
+              {wd}
+              {wi < words.length - 1 || si < segs.length - 1 ? '\u00a0' : ''}
+            </span>
+          );
+        });
+        return seg.em ? <em key={si}>{inner}</em> : <span key={si}>{inner}</span>;
+      })}
+    </>
+  );
+}
+
 function Stars() {
   return <span className="tracking-[0.12em]">★★★★★</span>;
 }
@@ -49,11 +77,28 @@ export default function SpaStory() {
   const f = tl.fn;
   const storyRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const camRef = useRef<HTMLDivElement>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const story = storyRef.current!;
     const stage = stageRef.current!;
+    const cam = camRef.current!;
+    const spot = spotRef.current!;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    // pointer, -1..1 from the stage centre, eased so the scene drifts rather than snaps
+    const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    const onPointer = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = stage.getBoundingClientRect();
+      mouse.tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+      mouse.ty = ((e.clientY - r.top) / r.height) * 2 - 1;
+      spot.style.setProperty('--sx', `${e.clientX - r.left}px`);
+      spot.style.setProperty('--sy', `${e.clientY - r.top}px`);
+      spot.style.opacity = '1';
+    };
+    if (finePointer && !reduce) stage.addEventListener('pointermove', onPointer);
     const ctx: Ctx = { P: 0, raw: 0, mobile: false, reduce };
     let pos = 0; // smoothed scroll position, in screens
     let last = performance.now();
@@ -110,9 +155,42 @@ export default function SpaStory() {
       if (Math.abs(target - pos) < 0.0003) pos = target;
       ctx.raw = pos / SCREENS;
       ctx.P = toStory(pos);
+      const ease = 1 - Math.exp(-dt * 4);
+      mouse.x += (mouse.tx - mouse.x) * ease;
+      mouse.y += (mouse.ty - mouse.y) * ease;
       const rect = story.getBoundingClientRect();
-      if (rect.bottom > 0 && rect.top < window.innerHeight) tl.apply(ctx);
+      if (rect.bottom > 0 && rect.top < window.innerHeight) {
+        placeCamera(now);
+        tl.apply(ctx);
+      }
       raf = requestAnimationFrame(frame);
+    };
+
+    /**
+     * The 3D camera: starts high and angled over the closed laptop, settles
+     * square-on as the lid opens, swings as the phone arrives, and pushes in
+     * toward the screen at the end of the design step. On desktop the pointer
+     * adds a few degrees of tilt; on touch screens a slow idle sway.
+     */
+    const placeCamera = (now: number) => {
+      const P = ctx.P;
+      const open = span(P, 0.02, 0.6);
+      const swing = span(P, 2.2, 2.75) - span(P, 3.1, 3.6);
+      const push = span(P, 2.0, 2.3) - span(P, 2.4, 2.8);
+      let rx = -24 + open * 16 + swing * 2;
+      let ry = 16 - open * 14 - swing * 14 + span(P, 3.6, 6.4, (t) => t) * 8 - span(P, 6.55, 6.95) * 4;
+      if (!reduce) {
+        if (finePointer) {
+          rx -= mouse.y * 5;
+          ry += mouse.x * 8;
+        } else {
+          ry += Math.sin(now / 2600) * 2.2;
+          rx += Math.cos(now / 3100) * 1.2;
+        }
+      }
+      cam.style.transform = `translate3d(0, ${(-(1 - open) * (ctx.mobile ? 0 : 110)).toFixed(1)}px, ${(push * 150).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+      stage.style.setProperty('--mx', mouse.x.toFixed(3));
+      stage.style.setProperty('--my', mouse.y.toFixed(3));
     };
 
     layout();
@@ -128,6 +206,7 @@ export default function SpaStory() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      stage.removeEventListener('pointermove', onPointer);
     };
   }, [tl]);
 
@@ -136,17 +215,26 @@ export default function SpaStory() {
     const dim = span(P, 3.1, 3.4) - span(P, 6.55, 6.85);
     const away = span(P, 5.45, 5.6) - span(P, 6.55, 6.85);
     const o = mobile ? 1 - dim : 1 - dim * 0.72 - away * 0.28;
-    el.style.opacity = o.toFixed(3);
-    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, 0, 0) scale(${(1 - dim * 0.08).toFixed(4)})`;
+    // opacity goes on the laptop's flat parts via a variable: opacity on a 3D
+    // group would flatten its lid and keyboard deck into one plane
+    el.style.setProperty('--lap-o', o.toFixed(3));
+    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, 0, ${(-dim * 120).toFixed(1)}px)`;
+  });
+  const lidFn = f((el, { P }) => {
+    // closed (lying on the keyboard) → open and tipped back a few degrees
+    const t = span(P, 0.02, 0.6);
+    el.style.transform = `rotateX(${(-88 + t * 94).toFixed(2)}deg)`;
   });
   const phoneFn = f((el, { P, mobile }) => {
     const enter = span(P, 2.35, 2.8);
     const focus = span(P, 3.1, 3.45) - span(P, 6.55, 6.85);
     const dx = (1 - enter) * 260 + (mobile ? -150 * enter - 218 * focus : -380 * focus);
     const dy = focus * (mobile ? -60 : -6);
-    const s = 1 + focus * (mobile ? 0.6 : 0.32);
+    const s = 1 + focus * (mobile ? 0.52 : 0.32);
+    const spin = (1 - enter) * -55 + focus * 6 - span(P, 6.55, 6.85) * 6;
+    const z = 60 + (1 - enter) * 260 + focus * 40;
     el.style.opacity = enter.toFixed(3);
-    el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+    el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${spin.toFixed(2)}deg) scale(${s.toFixed(4)})`;
   });
   const typing = f((el, { P }) => {
     const q = 'spa near me';
@@ -164,10 +252,14 @@ export default function SpaStory() {
       li.dataset.active = P >= at - 0.05 && P < next - 0.05 ? 'true' : 'false';
     });
   });
-  const parallax = (depth: number, spin = 0) =>
+  // foreground cut-outs: drift with scroll and slide against the pointer for depth
+  const parallax = (depth: number, spin = 0, mouseDepth = 0) =>
     f((el, { P, reduce }) => {
       if (reduce) return;
-      el.style.transform = `translate3d(0, ${(-P * 34 * depth).toFixed(1)}px, 0) rotate(${(P * spin).toFixed(2)}deg)`;
+      const st = getComputedStyle(el.parentElement!);
+      const mx = Number(st.getPropertyValue('--mx')) || 0;
+      const my = Number(st.getPropertyValue('--my')) || 0;
+      el.style.transform = `translate3d(${(-mx * mouseDepth).toFixed(1)}px, ${(-P * 34 * depth - my * mouseDepth * 0.6).toFixed(1)}px, 0) rotate(${(P * spin + mx * 3).toFixed(2)}deg)`;
     });
 
   const panel = (a: number, b?: number) => k(show(a, b, { y: [22, 0] }, 0.1));
@@ -176,6 +268,7 @@ export default function SpaStory() {
     <section ref={storyRef} aria-label="How Maraki takes a spa from blank screen to booked" className="relative" style={{ height: `${(SCREENS + 1) * 100}vh` }}>
       <div ref={stageRef} data-layout="side" className="stage sticky top-0 h-[100svh] w-full overflow-hidden">
         <div aria-hidden="true" className="stage-glow absolute inset-0" />
+        <div aria-hidden="true" ref={spotRef} className="spot absolute inset-0" />
         <div aria-hidden="true" ref={k([[5.45, 5.65, { o: [0, 1] }], [6.5, 6.7, { o: [1, 0] }]])} className="night absolute inset-0" />
 
         {/* parallax cut-outs */}
@@ -195,16 +288,25 @@ export default function SpaStory() {
             <span>Maraki</span>
           </div>
         </div>
-        <img aria-hidden="true" alt="" src={img('cut-plumeria.webp')} ref={parallax(0.2, -6)} className="cut cut-plumeria" />
-        <img aria-hidden="true" alt="" src={img('cut-candle.webp')} ref={parallax(0.15)} className="cut cut-candle" />
+        <img aria-hidden="true" alt="" src={img('cut-plumeria.webp')} ref={parallax(0.2, -6, 34)} className="cut cut-plumeria" />
+        <img aria-hidden="true" alt="" src={img('cut-candle.webp')} ref={parallax(0.15, 0, 22)} className="cut cut-candle" />
 
         {/* ---------------- device rig (820 × 560 design px) ---------------- */}
         <div aria-hidden="true" className="rig">
+          <div className="cam" ref={camRef}>
           <div className="ring" ref={k([[3.1, 3.4, { o: [1, 0.35] }], [6.55, 6.85, { o: [0.35, 1] }]])} />
           <div className="desk" />
 
-          {/* laptop */}
+          {/* laptop: a lid that opens over a keyboard deck, in real 3D */}
           <div className="laptop" ref={laptopFn}>
+            <div className="lap-deck">
+              <div className="lap-keys" />
+              <div className="lap-pad" />
+            </div>
+            <div className="lap-lid" ref={lidFn}>
+            <div className="lap-back">
+              <img src={LOGO_SRC} alt="" />
+            </div>
             <div className="lap-bezel">
               <div className="lap-screen">
                 <div className="layer bg-[#1a130e]" />
@@ -254,7 +356,7 @@ export default function SpaStory() {
                 </div>
               </div>
             </div>
-            <div className="lap-base" />
+            </div>
           </div>
 
           {/* phone */}
@@ -400,12 +502,13 @@ export default function SpaStory() {
             </span>
           </div>
           </div>
+          </div>
         </div>
 
         {/* ---------------- copy ---------------- */}
         <div className="panel" ref={k([[-1, -0.9, { o: [0, 1] }], [0.62, 0.72, { o: [1, 0], y: [0, -20] }]])}>
           <p className="eyebrow">Websites · Local SEO · AI receptionists</p>
-          <h1 className="headline">Digital experiences that <em>grow</em> your business.</h1>
+          <h1 className="headline" aria-label="Digital experiences that grow your business."><Words k={k} at={-1} segs={[{ t: 'Digital experiences that' }, { t: 'grow', em: true }, { t: 'your business.' }]} /></h1>
           <p className="lede">See how we transform a local spa’s digital presence — from a stunning website and local SEO to an AI receptionist that turns inquiries into booked appointments. Scroll to see the transformation.</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
@@ -414,12 +517,12 @@ export default function SpaStory() {
         </div>
         <div className="panel" ref={panel(0.72, 2.62)}>
           <p className="eyebrow">01 · Website design</p>
-          <h2 className="headline">Watch it <em>come together.</em></h2>
+          <h2 className="headline" aria-label="Watch it come together."><Words k={k} at={0.74} segs={[{ t: 'Watch it' }, { t: 'come together.', em: true }]} /></h2>
           <p className="lede">Custom, high-performing websites built around how your customers book, call and buy.</p>
         </div>
         <div className="panel" ref={panel(2.72, 4.15)}>
           <p className="eyebrow">02 · Local SEO</p>
-          <h2 className="headline">Found first, <em>nearby.</em></h2>
+          <h2 className="headline" aria-label="Found first, nearby."><Words k={k} at={2.74} segs={[{ t: 'Found first,' }, { t: 'nearby.', em: true }]} /></h2>
           <p className="lede">Be the business people see when they search close by, on Google and in AI search tools.</p>
           <ul className="points">
             <li>Google Business Profile setup and upkeep</li>
@@ -429,12 +532,12 @@ export default function SpaStory() {
         </div>
         <div className="panel" ref={panel(4.25, 5.35)}>
           <p className="eyebrow">03 · Online booking</p>
-          <h2 className="headline">Three taps to <em>booked.</em></h2>
+          <h2 className="headline" aria-label="Three taps to booked."><Words k={k} at={4.27} segs={[{ t: 'Three taps to' }, { t: 'booked.', em: true }]} /></h2>
           <p className="lede">Customers book the moment they decide, day or night, without a phone call.</p>
         </div>
         <div className="panel" ref={panel(5.45, 6.45)}>
           <p className="eyebrow">04 · AI receptionist</p>
-          <h2 className="headline">Answered at 9pm. <em>Booked by 9:04.</em></h2>
+          <h2 className="headline" aria-label="Answered at 9pm. Booked by 9:04."><Words k={k} at={5.47} segs={[{ t: 'Answered at 9pm.' }, { t: 'Booked by 9:04.', em: true }]} /></h2>
           <p className="lede">A voice and chat agent trained on your services, prices and hours. It answers, books and follows up around the clock.</p>
           <ul className="points">
             <li>Answers after hours and on busy days</li>
@@ -444,7 +547,7 @@ export default function SpaStory() {
         </div>
         <div className="panel" ref={panel(6.55)}>
           <p className="eyebrow">Maraki Solutions</p>
-          <h2 className="headline">Found. Chosen. <em>Booked.</em></h2>
+          <h2 className="headline" aria-label="Found. Chosen. Booked."><Words k={k} at={6.57} segs={[{ t: 'Found. Chosen.' }, { t: 'Booked.', em: true }]} /></h2>
           <p className="lede">That’s what we build for local businesses. Let’s do it for yours.</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a href={BOOK_HREF} className="btn-primary">Book a free consultation <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
