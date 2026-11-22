@@ -65,7 +65,7 @@ em { font-style: italic; }
   left: -500px; top: 470px; width: 1820px; height: 120px;
   background: radial-gradient(50% 60% at 45% 20%, rgb(80 52 30 / 0.55), transparent 70%);
 }
-.laptop { left: 20px; top: 70px; width: 640px; height: 412px; transform-style: preserve-3d; will-change: transform; }
+.laptop { left: 20px; top: 70px; width: 640px; height: 412px; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform; }
 .lap-lid { position: absolute; inset: 0; transform-origin: 50% 100%; transform-style: preserve-3d; will-change: transform; }
 .lap-bezel {
   position: absolute; inset: 0; backface-visibility: hidden; opacity: var(--lap-o, 1);
@@ -316,3 +316,5 @@ a:focus-visible, button:focus-visible { outline: 2px solid #f28c28; outline-offs
 @keyframes cue-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @keyframes cue-wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
 @keyframes cue-bounce { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(12px); opacity: 1; } }
+
+.stage[data-layout='stack'] .scroll-cue { padding-bottom: 150px; box-sizing: border-box; }

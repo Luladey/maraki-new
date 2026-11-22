@@ -219,7 +219,10 @@ export default function SpaStory() {
     // opacity goes on the laptop's flat parts via a variable: opacity on a 3D
     // group would flatten its lid and keyboard deck into one plane
     el.style.setProperty('--lap-o', o.toFixed(3));
-    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, 0, ${(-dim * 120).toFixed(1)}px)`;
+    // phones: while closed, the laptop is smaller and tucked up over the
+    // bottom of the ring; it grows back into place as the lid opens
+    const closed = mobile ? 1 - span(P, 0.02, 0.6) : 0;
+    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(-closed * 170).toFixed(1)}px, ${(-dim * 120).toFixed(1)}px) scale(${(1 - closed * 0.3).toFixed(4)})`;
   });
   const lidFn = f((el, { P }) => {
     // closed (lying on the keyboard) → open and tipped back a few degrees
