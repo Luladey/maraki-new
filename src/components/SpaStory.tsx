@@ -21,10 +21,6 @@ const toStory = warp([
   [6.0, 7.0], // finale
 ]);
 
-/** Maps the 616×388 screen layers onto the photo's screen (homography from its 4 corners). */
-const SCREEN_WARP =
-  'matrix3d(0.40891412, 0.14670762, 0, -0.00021563071, -0.1822971, 0.68902586, 0, 1.6511992e-05, 0, 0, 1, 0, 335.03448, 19.310345, 0, 1)';
-
 const CHAPTERS = [
   { label: 'Design', at: 0.85 },
   { label: 'Found', at: 3.15 },
@@ -182,12 +178,12 @@ export default function SpaStory() {
       const open = span(P, 0.02, 0.6);
       const swing = span(P, 2.2, 2.75) - span(P, 3.1, 3.6);
       const push = span(P, 2.0, 2.3) - span(P, 2.4, 2.8);
-      let rx = -6 + open * 4 + swing * 2;
-      let ry = 3 - open * 3 - swing * 8 + span(P, 3.6, 6.4, (t) => t) * 5 - span(P, 6.55, 6.95) * 3;
+      let rx = -24 + open * 16 + swing * 2;
+      let ry = 9 - open * 7 - swing * 14 + span(P, 3.6, 6.4, (t) => t) * 8 - span(P, 6.55, 6.95) * 4;
       if (!reduce) {
         if (finePointer) {
-          rx -= mouse.y * 3;
-          ry += mouse.x * 5;
+          rx -= mouse.y * 5;
+          ry += mouse.x * 8;
         } else {
           ry += Math.sin(now / 2600) * 2.2;
           rx += Math.cos(now / 3100) * 1.2;
@@ -220,12 +216,19 @@ export default function SpaStory() {
     const dim = span(P, 3.1, 3.4) - span(P, 6.55, 6.85);
     const away = span(P, 5.45, 5.6) - span(P, 6.55, 6.85);
     const o = mobile ? 1 - dim : 1 - dim * 0.72 - away * 0.28;
-    el.style.opacity = o.toFixed(3);
-    el.style.setProperty('--sleep', (1 - span(P, 0.15, 0.6)).toFixed(3));
-    // at first the laptop is smaller and sits low, over the bottom of the
-    // ring; it grows into place as the screen wakes up
-    const intro = 1 - span(P, 0.02, 0.6);
-    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(intro * (mobile ? 50 : 120)).toFixed(1)}px, ${(-dim * 120).toFixed(1)}px) scale(${(1 - intro * 0.28).toFixed(4)})`;
+    // opacity goes on the laptop's flat parts via a variable: opacity on a 3D
+    // group would flatten its lid and keyboard deck into one plane
+    el.style.setProperty('--lap-o', o.toFixed(3));
+    el.style.setProperty('--spill', (1 - span(P, 0.15, 0.55)).toFixed(3));
+    // while closed, the laptop is smaller and tucked up over the
+    // bottom of the ring; it grows back into place as the lid opens
+    const closed = 1 - span(P, 0.02, 0.6);
+    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(-closed * 170).toFixed(1)}px, ${(-dim * 120).toFixed(1)}px) scale(${(1 - closed * 0.3).toFixed(4)})`;
+  });
+  const lidFn = f((el, { P }) => {
+    // closed (lying on the keyboard) → open and tipped back a few degrees
+    const t = span(P, 0.02, 0.6);
+    el.style.transform = `rotateX(${(-70 + t * 76).toFixed(2)}deg)`; // starts ~18° ajar
   });
   const phoneFn = f((el, { P, mobile }) => {
     const enter = span(P, 2.35, 2.8);
@@ -310,12 +313,21 @@ export default function SpaStory() {
           </div>
           <div className="desk" />
 
-          {/* laptop: a real photographed laptop; the story plays on its screen,
-              warped to the screen's perspective */}
+          {/* laptop: a lid that opens over a keyboard deck, in real 3D */}
           <div className="laptop" ref={laptopFn}>
-            <div className="lap-glow" />
-            <img className="lap-photo" src={img('agency-laptop.webp')} alt="" />
-            <div className="lap-screen" style={{ transform: SCREEN_WARP }}>
+            <div className="lap-deck">
+              <div className="lap-keys" />
+              <div className="lap-pad" />
+              <div className="lap-spill" />
+              <div className="lap-beam" />
+            </div>
+            <div className="lap-lid" ref={lidFn}>
+            <div className="lap-back">
+              <img src={LOGO_SRC} alt="" />
+            </div>
+            <div className="lap-seam" />
+            <div className="lap-bezel">
+              <div className="lap-screen">
                 <div className="layer bg-[#1a130e]" />
                 <div className="layer grid-layer" ref={k([...show(0.6, 1.55, {}, 0.3)])} />
                 {/* wireframe */}
@@ -361,6 +373,8 @@ export default function SpaStory() {
                   <img src={LOGO_SRC} alt="" />
                   <span>Let’s build</span>
                 </div>
+              </div>
+            </div>
             </div>
           </div>
 
