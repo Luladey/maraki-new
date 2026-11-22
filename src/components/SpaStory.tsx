@@ -274,7 +274,7 @@ export default function SpaStory() {
 
   return (
     <section ref={storyRef} aria-label="How Maraki takes a spa from blank screen to booked" className="relative" style={{ height: `${(SCREENS + 1) * 100}vh` }}>
-      <div ref={stageRef} data-layout="side" className="stage sticky top-0 h-[100svh] w-full overflow-hidden">
+      <div ref={stageRef} data-layout="side" data-finish={typeof window === 'undefined' ? undefined : new URLSearchParams(window.location.search).get('finish') ?? undefined} className="stage sticky top-0 h-[100svh] w-full overflow-hidden">
         <div aria-hidden="true" className="stage-glow absolute inset-0" />
         <div aria-hidden="true" ref={spotRef} className="spot absolute inset-0" />
         <div aria-hidden="true" ref={k([[5.45, 5.65, { o: [0, 1] }], [6.5, 6.7, { o: [1, 0] }]])} className="night absolute inset-0" />
