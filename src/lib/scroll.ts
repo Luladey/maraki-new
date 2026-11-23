@@ -98,6 +98,10 @@ export const warp = (knots: [number, number][]) => (x: number) => {
   return knots[knots.length - 1][1];
 };
 
+/** Inverse of warp(): story time (y) → scroll position (x). Knots must increase in y. */
+export const unwarp = (knots: [number, number][]) => (y: number) =>
+  warp(knots.map(([a, b]) => [b, a] as [number, number]))(y);
+
 /** Fade in over [a, a+d], optionally fade out over [b, b+d]. */
 export const show = (a: number, b?: number, extra: Props = {}, d = 0.12): Track[] => {
   const t: Track[] = [[a, a + d, { o: [0, 1], ...extra }]];

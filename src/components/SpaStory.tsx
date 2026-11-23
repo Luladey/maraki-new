@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { ArrowRight, CalendarCheck, MapPin, Phone, Search } from 'lucide-react';
-import { Timeline, clamp, show, span, warp, type Ctx } from '@/lib/scroll';
+import { Timeline, clamp, show, span, unwarp, warp, type Ctx } from '@/lib/scroll';
 import { BOOK_HREF, LOGO_SRC, img } from '@/lib/site';
 
 /** Scroll length of the story, in screens. */
@@ -9,7 +9,7 @@ const SCREENS = 6;
  * Scroll position (in screens) → story time (keyframe units). Every step gets
  * about a screen of scrolling, with short holds so each scene can be read.
  */
-const toStory = warp([
+const KNOTS: [number, number][] = [
   [0, 0],
   [0.3, 0.5], // opening: brief hold
   [0.65, 1.0], // screen wakes straight into the grid
@@ -19,7 +19,11 @@ const toStory = warp([
   [4.4, 5.5], // booking
   [5.5, 6.6], // AI receptionist
   [6.0, 7.0], // finale
-]);
+];
+const toStory = warp(KNOTS);
+const toScroll = unwarp(KNOTS);
+/** Story-time windows where one step's copy hands over to the next. */
+const HANDOFFS: [number, number][] = [[0.62, 0.82], [2.62, 2.82], [4.15, 4.35], [5.35, 5.55], [6.45, 6.65]];
 
 const CHAPTERS = [
   { label: 'Design', at: 0.85 },
@@ -141,6 +145,27 @@ export default function SpaStory() {
       stage.style.setProperty('--ry', `${ry}px`);
     };
 
+    // If scrolling comes to rest mid hand-off (one heading fading out, the
+    // next fading in), glide to the nearer side so the copy is always readable.
+    let idle = 0;
+    const settle = () => {
+      const total = story.offsetHeight - window.innerHeight;
+      const top = story.getBoundingClientRect().top + window.scrollY;
+      const P = toStory(clamp((window.scrollY - top) / Math.max(total, 1)) * SCREENS);
+      const zone = HANDOFFS.find(([a, b]) => P > a && P < b);
+      if (!zone) return;
+      const dest = P < (zone[0] + zone[1]) / 2 ? zone[0] - 0.01 : zone[1] + 0.02;
+      const y = top + (toScroll(dest) / SCREENS) * total;
+      const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o?: object) => void } }).__lenis;
+      if (lenis) lenis.scrollTo(y, { duration: 0.7 });
+      else window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+    };
+    const onScroll = () => {
+      clearTimeout(idle);
+      idle = window.setTimeout(settle, 180);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     const read = () => {
       const rect = story.getBoundingClientRect();
       const total = story.offsetHeight - window.innerHeight;
@@ -208,6 +233,8 @@ export default function SpaStory() {
       cancelAnimationFrame(raf);
       ro.disconnect();
       stage.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(idle);
     };
   }, [tl]);
 
@@ -223,7 +250,7 @@ export default function SpaStory() {
     // while closed, the laptop is smaller and tucked up over the
     // bottom of the ring; it grows back into place as the lid opens
     const closed = 1 - span(P, 0.02, 0.6);
-    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(-closed * 170).toFixed(1)}px, ${(-dim * 120).toFixed(1)}px) scale(${(1 - closed * 0.3).toFixed(4)})`;
+    el.style.transform = `translate3d(${(-dim * 30).toFixed(1)}px, ${(-closed * 170).toFixed(1)}px, ${(-dim * 420).toFixed(1)}px) scale(${(1 - closed * 0.3).toFixed(4)})`;
   });
   const lidFn = f((el, { P }) => {
     // closed (lying on the keyboard) → open and tipped back a few degrees

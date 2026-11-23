@@ -10,6 +10,7 @@ export default function App() {
   // momentum, and Lenis turns smoothing off for prefers-reduced-motion.
   useEffect(() => {
     const lenis = new Lenis({ lerp: 0.08, wheelMultiplier: 0.9, anchors: { offset: -72 }, autoRaf: true, stopInertiaOnNavigate: true });
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
     return () => lenis.destroy();
   }, []);
 
